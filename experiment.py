@@ -39,9 +39,21 @@ def view_expenses():
     cursor.execute("""
     SELECT * FROM Expenses
     """)
-    x = cursor.fetchall()
-    for i in x:
-        print(i)
+    expenses = cursor.fetchall()
+    
+    print("<===========================================================================================================>")
+    print(f"{'ID':<5} {'AMOUNT':<12} {'CATEGORY':<22} {'DATE':<12}")
+    print("<===========================================================================================================>")
+
+    for expense in expenses:
+        id, amount, category, date = expense
+
+        print(
+            f"{id:<5} ₹{amount:<11.2f} {category:<22} {date:<12}"
+        )
+
+    print("<===========================================================================================================>")
+
 
     sql.commit()
 
@@ -64,28 +76,68 @@ def delete_expense():
         except ValueError:
             print(ask_id, "is not an ID !")
 
+
 def update_expense():
     while True:
         view_expenses()
-        Ask_id = input("Type an ID : ")
+        ask_id = input("Type an ID : ")
         try:
-            y = int(Ask_id)
-            cursor.execute("""
+            y = int(ask_id)
+            cursor.execute(
+                """
             SELECT * FROM Expenses WHERE ID = ?
-            """,(y,),
+            """,
+                (y,),
             )
 
             p = cursor.fetchone()
-            
-            if p == None:
+
+            if p is None:
                 print("ID not valid !")
             else:
-                print(p)
-
+                print("----- OPTIONS -----")
+                print("<==================>")
+                print("A. Amount")
+                print("B. Category")
+                print("C. Date")
+                print("<===================>")
+                ask_choice = input("Type your choice : ")
+                if ask_choice == "A" or ask_choice == "a":
+                    new_amount = input("Type the new amount : ")
+                    cursor.execute(
+                        """
+                    UPDATE Expenses
+                    SET Amount = ?
+                    WHERE ID = ? 
+                    """,
+                        (new_amount, y),
+                    )
+                elif ask_choice == "B" or ask_choice == "b":
+                    new_category = input("Type the new category :")
+                    cursor.execute(
+                        """
+                    UPDATE Expenses
+                    SET Category = ? 
+                    WHERE ID = ?
+                    """,
+                        (new_category, y),
+                    )
+                elif ask_choice == "C" or ask_choice == "c":
+                    new_date = input("Type the new date : ")
+                    cursor.execute(
+                        """
+                    UPDATE Expenses
+                    SET Date = ?
+                    WHERE ID = ?
+                    """,
+                        (new_date, y),
+                    )
+                else:
+                    print(ask_choice, "is not an option !")
             sql.commit()
             break
         except ValueError:
-            print(Ask_id , "is not an ID !")
+            print(ask_id, "is not an ID !")
 
 
 while True:
