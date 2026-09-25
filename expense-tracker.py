@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date
 
 sql = sqlite3.connect("EXpenses.db")
 cursor = sql.cursor()
@@ -12,24 +13,35 @@ cursor.execute("""
    )
 """)
 
+def display_expenses(expenses):
+    print("<=================================================================>")
+    print(f"{'ID':<5} {'AMOUNT':<12} {'CATEGORY':<22} {'DATE':<12}")
+    print("<=================================================================>")
+
+    for expense in expenses:
+        id, amount, category, date = expense
+        print(f"{id:<5} ₹{amount:<11.2f} {category:<22} {date:<12}")
+
+    print("<=================================================================>")
+
 
 def add_expense():
     while True:
-        Amount = input("Type amount : ")
+        amount = input("Type amount : ")
         try:
-            amount = float(Amount)
+            real_amount = float(amount)
             break
         except ValueError:
             print("Type an amount !")
 
-    Category = input("Type category : ")
+    category = input("Type category : ")
 
     cursor.execute(
         """
        INSERT INTO Expenses (Amount,Category)
        VALUES (?,?)
     """,
-        (amount, Category),
+        (real_amount, category),
     )
 
     sql.commit()
@@ -41,22 +53,18 @@ def view_expenses():
     """)
     expenses = cursor.fetchall()
     
-    print("<===========================================================================================================>")
+    print("<=================================================================>")
     print(f"{'ID':<5} {'AMOUNT':<12} {'CATEGORY':<22} {'DATE':<12}")
-    print("<===========================================================================================================>")
+    print("<=================================================================>")
 
     for expense in expenses:
         id, amount, category, date = expense
+        print(f"{id:<5} ₹{amount:<11.2f} {category:<22} {date:<12}")
 
-        print(
-            f"{id:<5} ₹{amount:<11.2f} {category:<22} {date:<12}"
-        )
-
-    print("<===========================================================================================================>")
+    print("<=================================================================>")
 
 
-    sql.commit()
-
+    
 
 def delete_expense():
     view_expenses()
@@ -71,10 +79,14 @@ def delete_expense():
             """,
                 (z,),
             )
+            p = cursor.fetchone()
+
+            if p is None:
+                print("ID not valid !")
             sql.commit()
             break
         except ValueError:
-            print(ask_id, "is not an ID !")
+            print(ask_id, " is not an ID !")
 
 
 def update_expense():
@@ -140,6 +152,63 @@ def update_expense():
             print(ask_id, "is not an ID !")
 
 
+def filter_expense():
+    while True:
+        print("---------------------FILTER/SORT_OPTIONS---------------------")
+        print("<===========================================================>")
+        print("A. Date")
+        print("B. Amount")
+        print("C. Category")
+        print("D. Date & Amount")
+        print("E. Date & Category")
+        print("F. Amount & Category")
+        print("G. Date, Amount & Category")
+        print("H. FROM 'X' DATE TO 'Y' DATE ")
+        print("I. EXIT")
+        print("<===========================================================>")
+        ask_choice = input("Type your choice : ")
+        if ask_choice == "A" or ask_choice == "a":
+            while True:
+                ask_date = input("Type the date : ")
+                try:
+                    date.fromisoformat(ask_date)
+                    if ask_date is None:
+                        print("Type a date!")
+                    else:
+                        cursor.execute(
+                            """
+                        SELECT * FROM Expenses WHERE Date = ?
+                        """,
+                            (ask_date,),
+                        )
+                        results = cursor.fetchall()
+                        display_expenses(results)
+                        if results is None:
+                            print("Invalid Date!")
+                        else:
+                            break
+                except ValueError:
+                    print("Invalid Date !")
+        elif ask_choice == "B" or ask_choice == "b":
+            print("Amount")
+        elif ask_choice == "C" or ask_choice == "c":
+            print("Category")
+        elif ask_choice == "D" or ask_choice == "d":
+            print("Date & Amount")
+        elif ask_choice == "E" or ask_choice == "e":
+            print("Date & Category")
+        elif ask_choice == "F" or ask_choice == "f":
+            print("Amount & Category")
+        elif ask_choice == "G" or ask_choice == "g":
+            print("Date, Amount & Category")
+        elif ask_choice == "H" or ask_choice == "h":
+            print("FROM 'X' DATE TO 'Y' DATE")
+        elif ask_choice == "I" or ask_choice == "i":
+            break
+        else:
+            print(ask_choice, "is not an option !")
+
+
 while True:
     print("---------Expense-Tracker----------")
     print("<===================================>")
@@ -149,7 +218,8 @@ while True:
     print("B. VIEW EXPENSES")
     print("C. DELETE EXPENSE")
     print("D. UPDATE EXPENSE")
-    print("E. EXIT")
+    print("E. FILTER/SORT EXPENSE")
+    print("F. EXIT")
     print("-------------------------------------")
     print("<===================================>")
     choice = input("Type your choice : ")
@@ -162,6 +232,8 @@ while True:
     elif choice == "D" or choice == "d":
         update_expense()
     elif choice == "E" or choice == "e":
+        filter_expense()
+    elif choice == "F" or choice == "f":
         break
     else:
         print(choice, "is not an option !")
