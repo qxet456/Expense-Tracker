@@ -1,5 +1,4 @@
 import sqlite3
-from datetime import date
 
 sql = sqlite3.connect("EXpenses.db")
 cursor = sql.cursor()
@@ -12,6 +11,7 @@ cursor.execute("""
    Date TEXT Default CURRENT_DATE
    )
 """)
+
 
 def display_expenses(expenses):
     print("<=================================================================>")
@@ -52,7 +52,7 @@ def view_expenses():
     SELECT * FROM Expenses
     """)
     expenses = cursor.fetchall()
-    
+
     print("<=================================================================>")
     print(f"{'ID':<5} {'AMOUNT':<12} {'CATEGORY':<22} {'DATE':<12}")
     print("<=================================================================>")
@@ -63,8 +63,6 @@ def view_expenses():
 
     print("<=================================================================>")
 
-
-    
 
 def delete_expense():
     view_expenses()
@@ -153,61 +151,8 @@ def update_expense():
 
 
 def filter_expense():
-    while True:
-        print("---------------------FILTER/SORT_OPTIONS---------------------")
-        print("<===========================================================>")
-        print("A. Date")
-        print("B. Amount")
-        print("C. Category")
-        print("D. Date & Amount")
-        print("E. Date & Category")
-        print("F. Amount & Category")
-        print("G. Date, Amount & Category")
-        print("H. FROM 'X' DATE TO 'Y' DATE ")
-        print("I. EXIT")
-        print("<===========================================================>")
-        ask_choice = input("Type your choice : ")
-        if ask_choice == "A" or ask_choice == "a":
-            while True:
-                ask_date = input("Type the date : ")
-                try:
-                    date.fromisoformat(ask_date)
-                    if ask_date is None:
-                        print("Type a date!")
-                    else:
-                        cursor.execute(
-                            """
-                        SELECT * FROM Expenses WHERE Date = ?
-                        """,
-                            (ask_date,),
-                        )
-                        results = cursor.fetchall()
-                        display_expenses(results)
-                        if results is None:
-                            print("Invalid Date!")
-                        else:
-                            break
-                except ValueError:
-                    print("Invalid Date !")
-        elif ask_choice == "B" or ask_choice == "b":
-            print("Amount")
-        elif ask_choice == "C" or ask_choice == "c":
-            print("Category")
-        elif ask_choice == "D" or ask_choice == "d":
-            print("Date & Amount")
-        elif ask_choice == "E" or ask_choice == "e":
-            print("Date & Category")
-        elif ask_choice == "F" or ask_choice == "f":
-            print("Amount & Category")
-        elif ask_choice == "G" or ask_choice == "g":
-            print("Date, Amount & Category")
-        elif ask_choice == "H" or ask_choice == "h":
-            print("FROM 'X' DATE TO 'Y' DATE")
-        elif ask_choice == "I" or ask_choice == "i":
-            break
-        else:
-            print(ask_choice, "is not an option !")
-
+    print()
+    
 
 while True:
     print("---------Expense-Tracker----------")
