@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date
 
 sql = sqlite3.connect("EXpenses.db")
 cursor = sql.cursor()
@@ -79,7 +80,7 @@ def delete_expense():
             )
             p = cursor.fetchone()
 
-            if p is None:
+            if p == [] or p is None:
                 print("ID not valid !")
             sql.commit()
             break
@@ -150,9 +151,62 @@ def update_expense():
             print(ask_id, "is not an ID !")
 
 
-def filter_expense():
-    print()
-    
+def search_expense():
+    while True:
+        print("---------- FILTER/SORT OPTIONS --------------")
+        print("<===========================================>")
+        print("A. Category")
+        print("B. Date")
+        print("C. Amount")
+        print("D. Back")
+        print("<===========================================>")
+        ask_choice = input("Type your choice : ")
+        if ask_choice == "A" or ask_choice == "a":
+            ask_category = input("Type your category : ")
+            cursor.execute("""
+            SELECT * FROM Expenses WHERE Category = ?
+            """,
+            (ask_category,),)
+            results = cursor.fetchall()
+            if results is None or results == []:
+                print("INVALID CATEGORY !")
+            else:
+                display_expenses(results)
+        elif ask_choice == "B" or ask_choice == "b":
+            ask_date = input("Type your date : ")
+            try:
+                date.fromisoformat(ask_date)
+                cursor.execute("""
+                SELECT * FROM Expenses WHERE Date = ?
+                """,
+                (ask_date,),)
+                results = cursor.fetchall()
+                if results is None or results == []:
+                    print("INVALID DATE")
+                else:
+                    display_expenses(results)
+            except ValueError:
+                print("USE YYYY-MM-DD FORMAT")
+        elif ask_choice == "C" or ask_choice == "c":
+            ask_amount = input("Type the amount : ")
+            try:
+                new_amount = float(ask_amount)
+                cursor.execute("""
+                SELECT * FROM Expenses WHERE Amount = ?
+                """,
+                (new_amount,),)
+                results = cursor.fetchall()
+                if results is None or results == []:
+                    print("INVALID AMOUNT")
+                else:
+                    display_expenses(results)
+            except ValueError:
+                print("Type a number!")
+        elif ask_choice == "D" or ask_choice == "d":
+            break
+        else:
+            print(ask_choice , "is not an option !")
+
 
 while True:
     print("---------Expense-Tracker----------")
@@ -177,7 +231,7 @@ while True:
     elif choice == "D" or choice == "d":
         update_expense()
     elif choice == "E" or choice == "e":
-        filter_expense()
+        search_expense()
     elif choice == "F" or choice == "f":
         break
     else:
