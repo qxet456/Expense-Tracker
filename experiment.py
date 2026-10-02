@@ -70,19 +70,19 @@ def delete_expense():
     while True:
         ask_id = input("Type an ID : ")
         try:
-            z = int(ask_id)
+            converted_id = int(ask_id)
             cursor.execute(
                 """
             DELETE FROM Expenses 
             WHERE ID = ?
             """,
-                (z,),
+                (converted_id,),
             )
-            p = cursor.fetchone()
-
-            if p == [] or p is None:
-                print("ID not valid !")
-            sql.commit()
+            x = cursor.rowcount
+            if x == 1:
+                print("Successfully Deleted")
+            else:
+                print("Invalid ID")
             break
         except ValueError:
             print(ask_id, " is not an ID !")
@@ -114,35 +114,47 @@ def update_expense():
                 print("<===================>")
                 ask_choice = input("Type your choice : ")
                 if ask_choice == "A" or ask_choice == "a":
-                    new_amount = input("Type the new amount : ")
-                    cursor.execute(
-                        """
-                    UPDATE Expenses
-                    SET Amount = ?
-                    WHERE ID = ? 
-                    """,
-                        (new_amount, y),
-                    )
+                    while True:
+                        ask_amount = input("Type the new amount : ")
+                        try:
+                            new_amount = float(ask_amount)
+                            cursor.execute(
+                                """
+                            UPDATE Expenses
+                            SET Amount = ?
+                            WHERE ID = ? 
+                            """,
+                                (new_amount, y),
+                            )
+                            break
+                        except ValueError:
+                            print("Type a number !")
                 elif ask_choice == "B" or ask_choice == "b":
-                    new_category = input("Type the new category :")
+                    ask_category = input("Type the new category :")
                     cursor.execute(
                         """
                     UPDATE Expenses
                     SET Category = ? 
                     WHERE ID = ?
                     """,
-                        (new_category, y),
+                        (ask_category, y),
                     )
                 elif ask_choice == "C" or ask_choice == "c":
-                    new_date = input("Type the new date : ")
-                    cursor.execute(
-                        """
-                    UPDATE Expenses
-                    SET Date = ?
-                    WHERE ID = ?
-                    """,
-                        (new_date, y),
-                    )
+                    while True:
+                        ask_date = input("Type the new date : ")
+                        try:
+                            date.fromisoformat(ask_date)
+                            cursor.execute(
+                                """
+                            UPDATE Expenses
+                            SET Date = ?
+                            WHERE ID = ?
+                            """,
+                                (ask_date, y),
+                            )
+                            break
+                        except ValueError:
+                            print("Use YYYY-MM-DD FORMAT")
                 else:
                     print(ask_choice, "is not an option !")
             sql.commit()
@@ -151,7 +163,7 @@ def update_expense():
             print(ask_id, "is not an ID !")
 
 
-def search_expense():
+def filter_expense():
     while True:
         print("---------- FILTER/SORT OPTIONS --------------")
         print("<===========================================>")
@@ -231,7 +243,7 @@ while True:
     elif choice == "D" or choice == "d":
         update_expense()
     elif choice == "E" or choice == "e":
-        search_expense()
+        filter_expense()
     elif choice == "F" or choice == "f":
         break
     else:
